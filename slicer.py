@@ -5,14 +5,13 @@ def split_line(line: str, char: str):
     result_array = []
     for sentence in sliced_array:
         sentence = str(sentence) + str(char)
-        sentence = sentence.replace(f"{char}{char}", str(char))
-        sentence = sentence.replace("\n", "")
-        if len(sentence) > 1:
+        if len(sentence) > 1 and str(sentence[-1]) != str(char) and str(sentence[-1]) not in [".", "!", "?"]:
+            sentence = sentence.replace("\n", "")
+            if len(sentence) > 1:
                 result_array.append(sentence)
     return result_array
 
-
-def split_inner_list(array_of_arrays: list[list], char: str):
+def split_inner_list(array_of_arrays: list[list[str]], char: str):
     result_array = []
     for array in array_of_arrays:
         for sub_array in array:
@@ -25,6 +24,13 @@ def split_inner_list(array_of_arrays: list[list], char: str):
                 charEndingSlice = charEndingSlice.replace(f"{str(char)}{str(char)}", str(char))
                 if len(charEndingSlice) > 1:
                     result_array.append(charEndingSlice)
+
+            
+            # for slice_str in slice_array:
+            #     slice_str = slice_str + str(char)
+            #     slice_str = slice_str.replace(f"{str(char)}{str(char)}", str(char))
+            #     if len(slice_str) > 1:
+            #         result_array.append(slice_str)
 
     return result_array
 
@@ -43,14 +49,15 @@ os.system("clear")
 lorem_ipsum1and2_list = [lorem_ipsum1, lorem_ipsum2]
 print(f"lorem_ipsum1and2_list\n-------------------\n{json.dumps(lorem_ipsum1and2_list)}\n-------------------\n")
 
-dotLists = list(map(lambda x: split_line(x, "."), lorem_ipsum1and2_list))
+dotLists = list(map(lambda x: x.split("."), lorem_ipsum1and2_list))
 print(f"\n• dotLists\n-------------------\n{json.dumps(obj=dotLists, indent=4)}\n-------------------\n")
 
-all_lists = split_inner_list(array_of_arrays=dotLists, char=".")
-print(f"\n• all_lists\n-------------------\n{json.dumps(obj=all_lists, indent=4)}\n-------------------\n")
+all_lists = split_inner_list(array_of_arrays=dotLists, char="!")
+print(f"\n• all_lists dot\n-------------------\n{json.dumps(obj=all_lists, indent=4)}\n-------------------\n")
 
-print("\n\\===================================================================")
-all_lists = list(map(lambda x: x.split("!"), all_lists))
+# print("\n\\===================================================================")
+# all_lists = list(map(lambda x: x.split("!"), all_lists))
+# print(f"\n• all_lists bang\n-------------------\n{json.dumps(obj=all_lists, indent=4)}\n-------------------\n")
 
-all_lists = split_inner_list(array_of_arrays=all_lists, char="?")
-print(f"\n• all_lists\n-------------------\n{json.dumps(obj=all_lists, indent=4)}\n-------------------\n")
+# all_lists = split_inner_list(array_of_arrays=all_lists, char="?")
+# print(f"\n• all_lists question\n-------------------\n{json.dumps(obj=all_lists, indent=4)}\n-------------------\n")

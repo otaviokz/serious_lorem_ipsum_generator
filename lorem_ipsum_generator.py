@@ -14,7 +14,7 @@ def main():
         print("'q' for Exit")
         option = input("Enter your choice: ")
         if option == "q":
-            break
+            quit()
         elif option == "1":
             paragraphs(main)
         elif option == "2":
@@ -32,10 +32,12 @@ def invalid_option(completion):
         completion()
 
 
-def paragraphs(completion):
+# 141 '.', 19 '!'. 19 '?' = 179 // QUASE lá
+def paragraphs(completion): 
     os.system('cls' if os.name == 'nt' else 'clear')
     print("========================================================")
-    option = input("Enter the number of paragraphs you want to generate (1 to 20), or 'q' to go back.")
+    print("Generating Lorem Ipsum gibberish by number of paragraphs.\n")
+    option = input("Enter a number (1 to 20) or 'q' to go back: ")
     if option == "q":
         completion()
     if re.match(r'^[1-9]$|^1[0-9]$|^20$', option):
@@ -58,60 +60,98 @@ def paragraphs(completion):
 def phrases(completion):
     os.system('cls' if os.name == 'nt' else 'clear')
     print("========================================================")
-    option = input("Enter the number of fhrases you want to generate (1 to 209), or 'q' to go back.")
-    if re.match(r'^[1-9]$|^1[0-9]$|^20[0-9]$|^209$', option):
+    option = input("Enter the number of phrases you want to generate (1 to 209), or 'q' to go back.\n: ")
+    if re.match(r'^[1-9]$|^1[0-9]$|^2[0-9]$|^1[0-9]{2}$|^20[0-8]$|^209$', option):
         if option == "q":
             completion()
         
         print("Generating " + option + " phrases of Lorem Ipsum gibberish.\n")
         number_of_phrases = int(option)
+        single_phrases = []
         
-        f = (open("documents/lorem_ipsum.txt", "r"))
-        lines = f.read()
+        def check_number_of_phrases_reached():
+            return len(single_phrases) >= number_of_phrases
         
-        puncgtuated_phrases = []
-        phrase_count = 0
-        should_continue = True
-        
+        lines = []
+        with open("documents/lorem_ipsum.txt") as file:
+            while new_line := file.readline():
+                lines = lines + [new_line.rstrip()]
+                        
         for line in lines:            
-            point_frases = line
-            bang_phrases = []
-            for point_phrase in point_phrases:
-                 point_phrase += "."
-                 bang_phrases += point_phrase.split("!")
-                 for phrase in bang_phrases:
-                    phrase += "!"
-                    question_frases = []
-                    for bang_phrase in bang_phrases:                     
-                        question_frases += bang_phrase.split("?")
-                        for phrase in question_frases:
-                            phrase += "?"
-                            line_phrases = question_frases
+            # Split on '.'
+            point_slices = line.split(".")            
+            for point_slice in point_slices:
+                 
+                 # Stop if the number of phrases is reached
+                 if check_number_of_phrases_reached():
+                     break
+                 
+                 # If the '.' sliced string is not empty and the last character is not a punctuation 
+                 if len(point_slice) > 0 and point_slice[-1] not in [".", "!", "?"]:        
+                    # # Add back the '.' at the end
+                    point_slice = point_slice + "."
 
-            print(f"line_frases: {line_phrases}")
-            while phrase_count < number_of_phrases:
-                for phrase in line_phrases:                    
-                    result_phrases = result_phrases + phrase + "."
-                    phrase_count += 1
-                    if phrase_count >= number_of_phrases:
-                        should_continue = False
-                        break              
-                if not should_continue:
-                    break
-            if not should_continue:
-                    break
-        f.close()
-        print_result(result_phrases)        
+                    # If there is no more punctuation in the slice, then it's a single phrase.
+                    if "!" not in point_slice and "?" not in point_slices:
+                        # Add it to the single_phrases list.
+                        single_phrases = single_phrases + [point_slice]
+                       
+                    # Split on '!'
+                    bang_slices = point_slice.split("!")
+                    for bang_slice in bang_slices:
+
+                        # Stop if the number of phrases is reached
+                        if check_number_of_phrases_reached():                            
+                            break
+                        
+                        # If the '!' sliced string is not empty and the last character is not a punctuation
+                        if len(bang_slice) > 1 and bang_slice[-1] not in [".", "!", "?"]:
+                            # Add back the '!' at the end
+                            bang_slice = bang_slice + "!"
+
+                            # If there is no more punctuation in the slice, then it's a single phrase.
+                            if "?" not in bang_slice:
+                                # Add it to the single_phrases list.
+                                single_phrases = single_phrases + [bang_slice]
+
+                            # Split on '?'
+                            question_slices = bang_slice.split("?")
+                            for question_slice in question_slices:
+
+                                # Stop if the number of phrases is reached
+                                if check_number_of_phrases_reached():                            
+                                    break
+
+                                # If the '?' sliced string is not empty and the last character is not a punctuation
+                                if len(question_slice) > 1 and question_slice[-1] not in [".", "!", "?"]:
+                                    # Add back the '?' at the end
+                                    question_slice = question_slice + "?"
+
+                                    # There's no more punctuation, given '?' is the last punctuation to be tested
+                                    single_phrases = single_phrases + [question_slice]
+                                    
+        print_phrases_list(single_phrases, completion)        
     else:
         input("Invalid input. Press any button to try again\n========================================================")
         phrases(completion)
-        
-    
-def print_result(result: str):
+
+
+def print_phrases_list(phrases_list, completion):
+    os.system('cls' if os.name == 'nt' else 'clear')
     print("=== Your Result (Type any key to open the main menu) ===")
     print()
-    print("\"" + result + "\"")
+    for phrase in phrases_list:
+        print(f"{phrase[1:] if phrase[0] == str(' ') else phrase[0:]}", end=" ")
     print()
+    print()
+    input_placeholder = input("========================================================")    
+    completion()
+
+
+def print_result(result: str):
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("=== Your Result (Type any key to open the main menu) ===")
+    print(f"{result}")    
     input_placeholder = input("========================================================")    
     main()
     
